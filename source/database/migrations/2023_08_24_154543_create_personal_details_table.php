@@ -28,7 +28,7 @@ return new class extends Migration
             $table->string('telephone');
             $table->string('email');
             $table->string('alternative_email')->nullable();
-            $table->boolean('disadvantaged')->default(false);
+            $table->boolean('disadvantaged')->nullable()->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -13,9 +13,9 @@ class ApplicationViewModel
     public $home_institution;
     public $mobility_id;
     public $mobility;
+    public $status;
     public $submitted_at;
     public $progress;
-    public $unlocked_forms = [];
 
     public function __construct(Application $application)
     {
@@ -26,12 +26,9 @@ class ApplicationViewModel
         $this->mobility = $application->mobility;
         $this->home_institution_id = $application->home_institution_id;
         $this->home_institution = $application->home_institution;
+        $this->status = $application->status;
         $this->submitted_at = $application->submitted_at;
-        if ($application->application_progress) $this->progress = new ApplicationProgressViewModel($application->application_progress);
-        if ($application->unlocked_forms) {
-            foreach ($application->unlocked_forms as $form) {
-                $this->unlocked_forms[] = $form->form_name;
-            }
-        }
+        if ($application->application_progress)
+            $this->progress = new ApplicationProgressViewModel($application->application_progress);
     }
 }

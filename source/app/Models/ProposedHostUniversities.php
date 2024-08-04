@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ProposedHostUniversities extends Model
@@ -26,12 +27,12 @@ class ProposedHostUniversities extends Model
         'deleted_at'
     ];
 
-    public function application()
+    public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
     }
 
-    public function semester()
+    public function semester(): BelongsTo
     {
         return $this->belongsTo(Semester::class);
     }

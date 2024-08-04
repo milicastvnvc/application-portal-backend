@@ -6,6 +6,7 @@ use App\Enums\BinaryQuestion;
 use App\Enums\Gender;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PersonalDetails extends Model
@@ -37,13 +38,13 @@ class PersonalDetails extends Model
         'deleted_at'
     ];
 
-    public function application()
-    {
-        return $this->belongsTo(Application::class);
-    }
-
     protected $casts = [
         'gender' => Gender::class,
         'disadvantaged' => BinaryQuestion::class
     ];
+
+    public function application(): BelongsTo
+    {
+        return $this->belongsTo(Application::class);
+    }
 }

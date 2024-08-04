@@ -39,14 +39,14 @@ class MobilitiesTableSeeder extends Seeder
             [
                 'name' => "STA",
                 'description' => "Staff mobility for teaching",
-                'type' => MobilityType::Staff,
+                'type' => MobilityType::StaffAcademic,
                 'created_at' => Carbon::now(),
                 'updated_at' => null
             ],
             [
                 'name' => "STT",
                 'description' => "Staff mobility for training",
-                'type' => MobilityType::Staff,
+                'type' => MobilityType::StaffNonAcademic,
                 'created_at' => Carbon::now(),
                 'updated_at' => null
             ]

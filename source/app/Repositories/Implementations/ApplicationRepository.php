@@ -2,8 +2,11 @@
 
 namespace App\Repositories\Implementations;
 
+use App\Enums\ApplicationStatus;
+use App\Enums\Roles;
 use App\Models\Application;
 use App\Repositories\Interfaces\IApplicationRepository;
+use Illuminate\Database\Eloquent\Collection;
 
 class ApplicationRepository extends BaseRepository implements IApplicationRepository
 {
@@ -14,7 +17,7 @@ class ApplicationRepository extends BaseRepository implements IApplicationReposi
         $this->model = $model;
     }
 
-    public function getAllApplications($page = 1, $search_key = '', $mobility_id = null, $home_institution_id = null, $per_page = 10, $is_submitted = true)
+    public function getAllApplications($page = 1, $search_key = '', $mobility_id = null, $home_institution_id = null, $per_page = 10, $status = null): mixed
     {
         $query = $this->model;
 
@@ -36,36 +39,39 @@ class ApplicationRepository extends BaseRepository implements IApplicationReposi
             });
         }
 
-        if ($is_submitted) {
-            $query = $query->whereNotNull('submitted_at');
+        if ($status && ApplicationStatus::from($status) != ApplicationStatus::Created) {
+            $query = $query->where('status', '=', $status);
         }
-        else { //get unlocked
-
-            $query = $query
-                ->whereNull('submitted_at')
-                ->whereExists(function ($query) {
-                    $query->select("unlocked_forms.*")
-                        ->from('unlocked_forms')
-                        ->whereRaw('unlocked_forms.application_id = applications.id');
-                });
+        else {
+            $query = $query->where('status', '!=', ApplicationStatus::Created);
         }
 
         return $query
-            ->with(['user', 'home_institution', 'mobility', 'other_mobility'])
+            ->with(['user:id,email',
+            'home_institution:id,name',
+            'mobility:id,name',
+            'other_mobility'  => function ($query) {
+                $query->select('application_id', 'id', 'description');
+            },
+            'personal_details' => function ($query) {
+                $query->select('application_id', 'surname', 'fornames');
+            }])
+            ->orderBy('submitted_at', 'desc')
             ->paginate($per_page, ['*'], 'page', $page);
     }
 
-    public function getApplicationsByUser($user_id)
+    public function getApplicationsByUser($user_id): Collection
     {
         return $this->model
             ::with(['home_institution', 'mobility:id,name,description', 'other_mobility'])
             ->where('user_id', $user_id)
-            ->get(['id', 'user_id', 'mobility_id', 'submitted_at', 'home_institution_id', 'created_at']);
+            ->where('status', '!=', ApplicationStatus::Rejected)
+            ->get(['id', 'user_id', 'mobility_id', 'home_institution_id', 'status', 'submitted_at', 'created_at']);
     }
 
-    public function getApplicationByIdAndUser($id, $user_id, array $relations = [], $adminAccess = true)
+    public function getApplicationByIdAndUser($id, $user, array $relations = [], $adminAccess = true): Application
     {
-        if ($adminAccess) {
+        if ($adminAccess && $user->hasRole(Roles::Admin)) {
             return $this->model
                 ->where('id', $id)
                 ->with($relations)
@@ -74,7 +80,7 @@ class ApplicationRepository extends BaseRepository implements IApplicationReposi
 
         return $this->model
             ->where('id', $id)
-            ->where('user_id', $user_id)
+            ->where('user_id', $user->id)
             ->with($relations)
             ->firstOrFail();
     }

@@ -2,7 +2,9 @@
 
 namespace App\Repositories\Interfaces;
 
+use Illuminate\Database\Eloquent\Collection;
+
 interface ISemesterRepository extends IBaseRepository
 {
-    public function getActiveSemesters();
+    public function getActiveSemesters(): Collection;
 }

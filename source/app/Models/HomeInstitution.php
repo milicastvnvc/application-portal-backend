@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class HomeInstitution extends Model
@@ -22,7 +23,7 @@ class HomeInstitution extends Model
         'deleted_at'
     ];
 
-    public function application()
+    public function application(): HasMany
     {
         return $this->hasMany(Application::class);
     }

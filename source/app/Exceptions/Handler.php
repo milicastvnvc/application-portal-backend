@@ -8,6 +8,7 @@ use Illuminate\Auth\AuthenticationException;
 use Throwable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class Handler extends ExceptionHandler
 {
@@ -32,8 +33,18 @@ class Handler extends ExceptionHandler
         });
 
         $this->renderable(function (Throwable $e, Request $request) {
+            if ($e instanceOf NotFoundHttpException) {
+                return response()->notFound();
+            }
             $log = new LoggingData();
-            $log->user_id = Auth::user()->id;
+            if (isset(Auth::user()->id))
+            {
+                $log->user_id = Auth::user()->id;
+            }
+            else
+            {
+                $log->user_id = null;
+            }
             $log->action = $request->fullUrl();
             $log->method = $request->method();
             $log->exception = $e->getMessage();

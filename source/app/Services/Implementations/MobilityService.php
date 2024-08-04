@@ -15,7 +15,7 @@ class MobilityService implements IMobilityService
         $this->mobilityRepository = $mobilityRepository;
     }
 
-    public function getAll()
+    public function getAll(): ActionResultResponse
     {
         $response = new ActionResultResponse();
 

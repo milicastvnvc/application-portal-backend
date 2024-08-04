@@ -7,7 +7,7 @@ use App\Repositories\Interfaces\IApplicationRepository;
 use App\Repositories\Interfaces\IDocumentTypeRepository;
 use App\Services\Interfaces\IDocumentTypeService;
 use App\ViewModels\ActionResultResponse;
-use App\ViewModels\ApplicationViewModel;
+use Illuminate\Http\Request;
 
 class DocumentTypeService implements IDocumentTypeService
 {
@@ -22,17 +22,16 @@ class DocumentTypeService implements IDocumentTypeService
         $this->applicationRepository = $applicationRepository;
     }
 
-    public function getByMobilityType($request)
+    public function getByMobilityType(Request $request): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
         $application_id = $request->application_id;
-        $user_id = $request->user()->id;
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $application_id,
-            $user_id,
-            relations: ['mobility', 'user', 'unlocked_forms']
+            $request->user(),
+            relations: ['user']
         );
 
         if (!$application->mobility) {
@@ -48,8 +47,7 @@ class DocumentTypeService implements IDocumentTypeService
             return $response;
         }
 
-
-        $result['application'] = new ApplicationViewModel($application);
+        $result['application'] = $application;
         $result['document_types'] = $document_types;
 
         $response->setSuccess($result);

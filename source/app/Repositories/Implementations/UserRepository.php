@@ -14,7 +14,7 @@ class UserRepository extends BaseRepository implements IUserRepository
         $this->model = $model;
     }
 
-    public function register($email, $password)
+    public function register(string $email, string $password): ?User
     {
         return $this->model->firstOrCreate([
             'email' => $email,
@@ -22,37 +22,17 @@ class UserRepository extends BaseRepository implements IUserRepository
         ]);
     }
 
-    public function addUserExternally($email, $providerId, $providerName)
-    {
-        return $this->model->updateOrCreate(
-            ['email' => $email],
-            [
-                'email' => $email,
-                'provider_id' => $providerId,
-                'provider_name' => $providerName
-            ]
-        );
-    }
-
-    public function getUserByEmail($email)
+    public function getUserByEmail(string $email): ?User
     {
         return $this->model::whereEmail($email)->first();
     }
 
-    public function getUserByProvider($providerId, $providerName)
-    {
-        return $this->model
-            ->where('provider_id', $providerId)
-            ->where('provider_name', $providerName)
-            ->first();
-    }
-
-    public function updateUser($user)
+    public function updateUser(mixed $user): void
     {
         $user->save();
     }
 
-    public function getUserByVerificationCode($code, $reset_password = false)
+    public function getUserByVerificationCode(string $code, bool $reset_password = false): ?User
     {
         if ($reset_password)
             return $this->model::where('reset_password_code', $code)->first();

@@ -2,6 +2,7 @@
 
 namespace App\Services\Implementations;
 
+use App\Enums\FormProgress;
 use App\Helpers\ApplicationHelper;
 use App\Repositories\Interfaces\IApplicationProgressRepository;
 use App\Repositories\Interfaces\IApplicationRepository;
@@ -10,7 +11,9 @@ use App\Repositories\Interfaces\ISemesterRepository;
 use App\Services\Interfaces\IProposedHostUniversitiesService;
 use App\ViewModels\ActionResultResponse;
 use App\ViewModels\ApplicationViewModel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Validator as Val;
 use Illuminate\Support\Facades\DB;
 
 class ProposedHostUniversitiesService implements IProposedHostUniversitiesService
@@ -32,14 +35,14 @@ class ProposedHostUniversitiesService implements IProposedHostUniversitiesServic
         $this->semesterRepository = $semesterRepository;
     }
 
-    public function getByApplicationId($application_id, $user_id)
+    public function getByApplicationId(int $application_id, mixed $user): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $application_id,
-            $user_id,
-            relations: ['user', 'unlocked_forms']
+            $user,
+            relations: ['user']
         );
 
         $host_universities = $this->proposedHostUniversitiesRepository->findByApplicationId($application_id);
@@ -54,7 +57,7 @@ class ProposedHostUniversitiesService implements IProposedHostUniversitiesServic
         return $response;
     }
 
-    public function createOrUpdate($request)
+    public function createOrUpdate(Request $request): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -67,8 +70,8 @@ class ProposedHostUniversitiesService implements IProposedHostUniversitiesServic
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $request->application_id,
-            $request->user()->id,
-            relations: ['application_progress', 'unlocked_forms'],
+            $request->user(),
+            relations: ['application_progress'],
             adminAccess: false
         );
 
@@ -98,9 +101,9 @@ class ProposedHostUniversitiesService implements IProposedHostUniversitiesServic
                 $response->setErrors(['Error while changing proposed host universities forms']);
                 throw new \Exception("Error while changing proposed host universities forms");
             }
-            if (!$application->application_progress->proposed_host_universities) {
+            if ($application->application_progress->proposed_host_universities == FormProgress::Incompleted) {
                 $progress = $this->applicationProgressRepository->update($application->application_progress->id, [
-                    "proposed_host_universities" => true
+                    "proposed_host_universities" => FormProgress::Completed
                 ]);
 
                 if (!$progress) {
@@ -121,7 +124,7 @@ class ProposedHostUniversitiesService implements IProposedHostUniversitiesServic
         return $response;
     }
 
-    public function validate($input_data)
+    public function validate(mixed $input_data): Val
     {
         $validator = Validator::make($input_data, [
             'application_id' =>  'required|numeric',

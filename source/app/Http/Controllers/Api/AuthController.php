@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Services\Interfaces\IUserService;
 
 class AuthController extends Controller
@@ -30,17 +29,6 @@ class AuthController extends Controller
         return response()->ok($response);
     }
 
-    public function refresh()
-    {
-        return response()->json([
-            'user' => Auth::user(),
-            'authorisation' => [
-                'token' => Auth::refresh(),
-                'type' => 'bearer',
-            ]
-        ]);
-    }
-
     public function verifyEmail(Request $request)
     {
         $response = $this->userService->verify($request);
@@ -58,13 +46,6 @@ class AuthController extends Controller
     public function resetPassword(Request $request)
     {
         $response = $this->userService->resetPassword($request);
-
-        return response()->ok($response);
-    }
-
-    public function googleLogin(Request $request)
-    {
-        $response = $this->userService->googleLogin($request);
 
         return response()->ok($response);
     }

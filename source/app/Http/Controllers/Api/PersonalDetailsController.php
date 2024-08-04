@@ -18,7 +18,7 @@ class PersonalDetailsController extends Controller
 
     public function getByApplicationId(Request $request)
     {
-        $response = $this->personalDetailsService->getByApplicationId($request->application_id, $request->user()->id);
+        $response = $this->personalDetailsService->getByApplicationId($request->application_id, $request->user());
 
         return response()->ok($response);
     }

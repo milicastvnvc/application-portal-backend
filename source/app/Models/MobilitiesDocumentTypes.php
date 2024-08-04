@@ -23,10 +23,6 @@ class MobilitiesDocumentTypes extends Model
         'deleted_at'
     ];
 
-    // protected $casts = [
-    //     'mobility_type' => MobilityType::class,
-    // ];
-
     public function document_type(): BelongsTo
     {
         return $this->belongsTo(DocumentType::class);

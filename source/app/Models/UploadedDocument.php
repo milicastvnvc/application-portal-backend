@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UploadedDocument extends Model
@@ -19,10 +20,17 @@ class UploadedDocument extends Model
     ];
 
     protected $hidden = [
+        'created_at',
+        'updated_at',
         'deleted_at'
     ];
 
-    public function document_type()
+    public function application(): BelongsTo
+    {
+        return $this->belongsTo(Application::class);
+    }
+
+    public function document_type(): BelongsTo
     {
         return $this->belongsTo(DocumentType::class);
     }

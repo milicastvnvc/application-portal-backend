@@ -13,7 +13,6 @@ use App\Http\Controllers\Api\MobilityController;
 use App\Http\Controllers\Api\PersonalDetailsController;
 use App\Http\Controllers\Api\MotivationAndAddedValueController;
 use App\Http\Controllers\Api\ProposedHostUniversitiesController;
-use App\Http\Controllers\Api\UnlockedFormController;
 use App\Http\Controllers\Api\UploadedDocumentController;
 
 /*
@@ -29,10 +28,7 @@ use App\Http\Controllers\Api\UploadedDocumentController;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/google-login', [AuthController::class, 'googleLogin']);
     Route::post('/register', [AuthController::class, 'register']);
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::post('/refresh', [AuthController::class, 'refresh']);
     Route::get('/verify/{code}', [AuthController::class, 'verifyEmail']);
     Route::post('/send-code', [AuthController::class, 'sendVerifyCode']);
     Route::post('/reset-password', [AuthController::class, 'resetPassword']);
@@ -44,16 +40,17 @@ Route::prefix('application')->group(function () {
     Route::post('', [ApplicationController::class, 'create']);
     Route::get('/{id}', [ApplicationController::class, 'getById']);
     Route::post('/submit', [ApplicationController::class, 'submitApplication']);
+    Route::post('/status', [ApplicationController::class, 'changeApplicationStatus']);
 });
 
-// Route::prefix('application-progress')->group(function () {
-//     Route::get('/{application_id}', [ApplicationProgressController::class, 'getByApplicationId']);
-// });
+Route::prefix('application-progress')->group(function () {
+    Route::get('/{application_id}', [ApplicationProgressController::class, 'getByApplicationId']);
+    Route::post('/', [ApplicationProgressController::class, 'toggleLock']);
+});
 
 Route::prefix('home-institutions')->group(function () {
     Route::get('/', [HomeInstitutionController::class, 'getAll']);
     Route::get('/{id}', [HomeInstitutionController::class, 'getById']);
-    Route::post('/', [HomeInstitutionController::class, 'create']);
 });
 
 Route::prefix('mobility')->group(function () {
@@ -88,12 +85,9 @@ Route::prefix('documents-upload')->group(function () {
     Route::get('/{application_id}', [UploadedDocumentController::class, 'getByApplicationId']);
     Route::post('/', [UploadedDocumentController::class, 'createOrUpdate']);
     Route::get('download/{application_id}/{document_name}/{filename}',  [UploadedDocumentController::class, 'download']);
+    Route::get('downloadAll/{application_id}',  [UploadedDocumentController::class, 'downloadAll']);
 });
 
-Route::prefix('unlocked-form')->group(function () {
-    Route::get('/{application_id}/{form_name}', [UnlockedFormController::class, 'getUnlockedForm']);
-    Route::post('/', [UnlockedFormController::class, 'toggleLock']);
-});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

@@ -14,10 +14,4 @@ class ApplicationProgressRepository extends FormRepository implements IApplicati
         $this->model = $model;
     }
 
-    public function updateWhereApplicationId($application_id, $payload)
-    {
-        return $this->model
-        ->where('application_id', $application_id)
-        ->update($payload);
-    }
 }

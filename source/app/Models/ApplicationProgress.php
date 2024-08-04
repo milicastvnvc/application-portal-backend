@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
+use App\Enums\FormProgress;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ApplicationProgress extends Model
@@ -26,7 +28,15 @@ class ApplicationProgress extends Model
         'deleted_at'
     ];
 
-    public function application()
+    protected $casts = [
+        'personal_details' => FormProgress::class,
+        'home_institution' => FormProgress::class,
+        'proposed_host_universities' => FormProgress::class,
+        'motivation_and_added_value' => FormProgress::class,
+        'documents_upload' => FormProgress::class
+    ];
+
+    public function application(): BelongsTo
     {
         return $this->belongsTo(Application::class);
     }

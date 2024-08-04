@@ -2,9 +2,12 @@
 
 namespace App\Repositories\Interfaces;
 
+use App\Enums\MobilityType;
+use Illuminate\Database\Eloquent\Collection;
+
 interface IDocumentTypeRepository extends IBaseRepository
 {
-    public function getByMobilityType($mobility_type);
+    public function getByMobilityType(MobilityType $mobility_type): Collection;
 
-    public function countDocumentsByMobilityType($mobility_type);
+    public function countDocumentsByMobilityType(MobilityType $mobility_type): int;
 }

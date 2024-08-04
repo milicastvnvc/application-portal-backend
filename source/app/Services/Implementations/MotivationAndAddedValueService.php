@@ -2,6 +2,7 @@
 
 namespace App\Services\Implementations;
 
+use App\Enums\FormProgress;
 use App\Helpers\ApplicationHelper;
 use App\Repositories\Interfaces\IApplicationProgressRepository;
 use App\Repositories\Interfaces\IApplicationRepository;
@@ -9,7 +10,9 @@ use App\Repositories\Interfaces\IMotivationAndAddedValueRepository;
 use App\Services\Interfaces\IMotivationAndAddedValueService;
 use App\ViewModels\ActionResultResponse;
 use App\ViewModels\FormResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Validator as Val;
 use Illuminate\Support\Facades\DB;
 
 
@@ -29,14 +32,14 @@ class MotivationAndAddedValueService implements IMotivationAndAddedValueService
         $this->applicationProgressRepository = $applicationProgressRepository;
     }
 
-    public function getByApplicationId($application_id, $user_id)
+    public function getByApplicationId(int $application_id, mixed $user): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $application_id,
-            $user_id,
-            relations: ['user', 'unlocked_forms']
+            $user,
+            relations: ['user']
         );
 
         $motivation = $this->motivationAndAddedValueRepository->findByApplicationId($application_id);
@@ -48,7 +51,7 @@ class MotivationAndAddedValueService implements IMotivationAndAddedValueService
         return $response;
     }
 
-    public function createOrUpdate($request)
+    public function createOrUpdate(Request $request): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -61,8 +64,8 @@ class MotivationAndAddedValueService implements IMotivationAndAddedValueService
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $request->application_id,
-            $request->user()->id,
-            relations: ['application_progress', 'unlocked_forms'],
+            $request->user(),
+            relations: ['application_progress'],
             adminAccess: false
         );
 
@@ -81,7 +84,8 @@ class MotivationAndAddedValueService implements IMotivationAndAddedValueService
                 [
                     'application_id' => $request->application_id,
                     'chosen_institution' => $request->chosen_institution,
-                    'mobility_impact' => $request->mobility_impact
+                    'mobility_impact' => $request->mobility_impact,
+                    'chosen_institution_second' => $request->chosen_institution_second
                 ]
             );
 
@@ -89,9 +93,9 @@ class MotivationAndAddedValueService implements IMotivationAndAddedValueService
                 $response->setErrors(['Error while changing motivation and added value form.']);
                 throw new \Exception("Error while changing motivation and added value form.");
             }
-            if (!$application->application_progress->motivation_and_added_value) {
+            if ($application->application_progress->motivation_and_added_value == FormProgress::Incompleted) {
                 $progress = $this->applicationProgressRepository->update($application->application_progress->id, [
-                    "motivation_and_added_value" => true
+                    "motivation_and_added_value" => FormProgress::Completed
                 ]);
 
                 if (!$progress) {
@@ -115,12 +119,13 @@ class MotivationAndAddedValueService implements IMotivationAndAddedValueService
         return $response;
     }
 
-    public function validate($input_data)
+    public function validate(mixed $input_data): Val
     {
         $validator = Validator::make($input_data, [
             'application_id' =>  'required|numeric',
-            'chosen_institution' => 'required|string|min:300|max:1000',
-            'mobility_impact' => 'required|string|min:300|max:1000',
+            'chosen_institution' => 'required|string|min:300|max:1500',
+            'chosen_institution_second' => 'nullable|string|min:300|max:1500',
+            'mobility_impact' => 'required|string|min:300|max:2000'
         ]);
 
         return $validator;

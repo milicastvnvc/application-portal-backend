@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('application_id');
             $table->foreign('application_id')->references('id')->on('applications')->onDelete('cascade');
-            $table->string('chosen_institution', 1000);
-            $table->string('mobility_impact', 1000);
+            $table->string('chosen_institution', 1500);
+            $table->string('mobility_impact', 2000);
+            $table->string('chosen_institution_second', 1500)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -27,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('motvation_and_added_values');
+        Schema::dropIfExists('motivation_and_added_values');
     }
 };

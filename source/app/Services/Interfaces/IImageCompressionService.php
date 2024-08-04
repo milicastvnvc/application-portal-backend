@@ -4,5 +4,5 @@ namespace App\Services\Interfaces;
 
 interface IImageCompressionService
 {
-    public function compressImage($file, $file_path);
+    public function compressImage(mixed $file, string $file_path): bool;
 }

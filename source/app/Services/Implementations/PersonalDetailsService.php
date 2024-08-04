@@ -3,6 +3,7 @@
 namespace App\Services\Implementations;
 
 use App\Enums\BinaryQuestion;
+use App\Enums\FormProgress;
 use App\Enums\Gender;
 use App\Helpers\ApplicationHelper;
 use App\Repositories\Interfaces\IApplicationProgressRepository;
@@ -11,7 +12,9 @@ use App\Repositories\Interfaces\IPersonalDetailsRepository;
 use App\Services\Interfaces\IPersonalDetailsService;
 use App\ViewModels\ActionResultResponse;
 use App\ViewModels\FormResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use \Illuminate\Validation\Validator as Val;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Support\Facades\DB;
 
@@ -31,14 +34,14 @@ class PersonalDetailsService implements IPersonalDetailsService
         $this->applicationProgressRepository = $applicationProgressRepository;
     }
 
-    public function getByApplicationId($application_id, $user_id)
+    public function getByApplicationId(int $application_id, mixed $user): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $application_id,
-            $user_id,
-            relations: ['user', 'unlocked_forms']
+            $user,
+            relations: ['user']
         );
 
         $details = $this->personalDetailsRepository->findByApplicationId($application_id);
@@ -50,7 +53,7 @@ class PersonalDetailsService implements IPersonalDetailsService
         return $response;
     }
 
-    public function createOrUpdate($request)
+    public function createOrUpdate(Request $request): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -63,8 +66,8 @@ class PersonalDetailsService implements IPersonalDetailsService
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $request->application_id,
-            $request->user()->id,
-            relations: ['application_progress', 'unlocked_forms'],
+            $request->user(),
+            relations: ['application_progress'],
             adminAccess: false
         );
 
@@ -103,9 +106,9 @@ class PersonalDetailsService implements IPersonalDetailsService
                 $response->setErrors(['Error while changing personal details forms']);
                 throw new \Exception("Error while changing personal details forms");
             }
-            if (!$application->application_progress->personal_details) {
+            if ($application->application_progress->personal_details == FormProgress::Incompleted) {
                 $progress = $this->applicationProgressRepository->update($application->application_progress->id, [
-                    "personal_details" => true
+                    "personal_details" => FormProgress::Completed
                 ]);
 
                 if (!$progress) {
@@ -126,7 +129,7 @@ class PersonalDetailsService implements IPersonalDetailsService
         return $response;
     }
 
-    public function validate($input_data)
+    public function validate(mixed $input_data): Val
     {
         $validator = Validator::make($input_data, [
             'application_id' => 'required|numeric',
@@ -143,7 +146,7 @@ class PersonalDetailsService implements IPersonalDetailsService
             'telephone' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'alternative_email' => 'nullable|string|email|max:255',
-            'disadvantaged' => [new Enum(BinaryQuestion::class)]
+            'disadvantaged' => ['nullable', new Enum(BinaryQuestion::class)]
         ]);
 
         return $validator;

@@ -6,9 +6,9 @@ use App\Enums\FileType;
 
 interface IFileService
 {
-    public function getExtension(string $filename);
+    public function getExtension(string $filename): string;
 
-    public function getFileType(string $extension);
+    public function getFileType(string $extension): FileType;
 
-    public function getFileSize(FileType $type);
+    public function getFileSize(FileType $type): int;
 }

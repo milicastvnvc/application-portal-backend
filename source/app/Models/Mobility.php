@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\MobilityType;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Mobility extends Model
@@ -25,10 +26,10 @@ class Mobility extends Model
     ];
 
     protected $casts = [
-        'type' => MobilityType::class,
+        'type' => MobilityType::class
     ];
 
-    public function application()
+    public function application(): HasMany
     {
         return $this->hasMany(Application::class);
     }

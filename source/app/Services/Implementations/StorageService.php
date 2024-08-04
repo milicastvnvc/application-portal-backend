@@ -5,29 +5,33 @@ namespace App\Services\Implementations;
 use App\Enums\FileType;
 use App\Services\Interfaces\IImageCompressionService;
 use App\Services\Interfaces\IStorageService;
-use App\Services\Interfaces\IVideoCompressionService;
 use Illuminate\Support\Facades\Storage;
 
 class StorageService implements IStorageService
 {
 
     private $imageCompressionService;
-    private $videoCompressionService;
 
-    public function __construct(IImageCompressionService $imageCompressionService, IVideoCompressionService $videoCompressionService)
+    public function __construct(IImageCompressionService $imageCompressionService)
     {
         $this->imageCompressionService = $imageCompressionService;
-        $this->videoCompressionService = $videoCompressionService;
     }
 
-    public function createStoragePath($user_id, $application_id, $document_name, $filename)
+    public function createStoragePath(int $user_id, int $application_id, string $document_name, string $filename): string
     {
-        $file_path = storage_path() . DIRECTORY_SEPARATOR . 'app'  . DIRECTORY_SEPARATOR .  $user_id .  DIRECTORY_SEPARATOR . $application_id . DIRECTORY_SEPARATOR . $document_name . DIRECTORY_SEPARATOR . $filename;
+        $file_path = $this->getApplicationStoragePath($user_id, $application_id) .  DIRECTORY_SEPARATOR . $application_id . DIRECTORY_SEPARATOR . $document_name . DIRECTORY_SEPARATOR . $filename;
 
         return $file_path;
     }
 
-    public function deleteContentsOfDirectory($directory_path)
+    public function getApplicationStoragePath(int $user_id, int $application_id): string
+    {
+        $file_path = storage_path() . DIRECTORY_SEPARATOR . 'app'  . DIRECTORY_SEPARATOR .  $user_id;
+
+        return $file_path;
+    }
+
+    public function deleteContentsOfDirectory(string $directory_path): bool
     {
         $result = true;
 
@@ -39,7 +43,7 @@ class StorageService implements IStorageService
         return $result;
     }
 
-    public function doesExistDirectory($directory_path)
+    public function doesExistDirectory(string $directory_path): bool
     {
 
         if (Storage::exists($directory_path) && is_dir(Storage::path($directory_path))) {
@@ -49,7 +53,7 @@ class StorageService implements IStorageService
         return false;
     }
 
-    public function storeOnLocalDisk($file, $file_type, $user_id, $application_id, $document_name, $filename)
+    public function storeOnLocalDisk(mixed $file, FileType $file_type, int $user_id, int $application_id, string $document_name, string $filename): bool
     {
         $directory = $this->getDirectory($user_id, $application_id, $document_name);
         $isSuccessful = false;
@@ -72,18 +76,6 @@ class StorageService implements IStorageService
 
             return $isSuccessful;
         }
-        else if ($file_type == FileType::Video) {
-
-            $file_path = $this->createStoragePath(
-                $user_id,
-                $application_id,
-                $document_name,
-                $filename
-            );
-
-            $isSuccessful = $this->videoCompressionService->compressVideo($file, $directory);
-            return $isSuccessful;
-        }
 
         $path = $directory . DIRECTORY_SEPARATOR . $filename;
         $isSuccessful = Storage::disk('local')->put($path, file_get_contents($file));
@@ -91,13 +83,8 @@ class StorageService implements IStorageService
         return $isSuccessful;
     }
 
-    public function getDirectory($user_id, $application_id, $document_name)
+    public function getDirectory(int $user_id, int $application_id, string $document_name): string
     {
         return  $user_id . DIRECTORY_SEPARATOR . $application_id . DIRECTORY_SEPARATOR . $document_name;
-    }
-
-    public function convertBytesToMegabytes($bytes)
-    {
-        return $bytes / 1048576;
     }
 }

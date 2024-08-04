@@ -2,6 +2,7 @@
 
 namespace App\Services\Implementations;
 
+use App\Enums\FormProgress;
 use App\Helpers\ApplicationHelper;
 use App\Repositories\Interfaces\IApplicationProgressRepository;
 use App\Repositories\Interfaces\IApplicationRepository;
@@ -9,7 +10,9 @@ use App\Repositories\Interfaces\IHomeInstitutionFormRepository;
 use App\Services\Interfaces\IHomeInstitutionFormService;
 use App\ViewModels\ActionResultResponse;
 use App\ViewModels\FormResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Validator as Val;
 use Illuminate\Support\Facades\DB;
 
 class HomeInstitutionFormService implements IHomeInstitutionFormService
@@ -28,14 +31,14 @@ class HomeInstitutionFormService implements IHomeInstitutionFormService
         $this->applicationProgressRepository = $applicationProgressRepository;
     }
 
-    public function getByApplicationId($application_id, $user_id)
+    public function getByApplicationId(int $application_id, mixed $user): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $application_id,
-            $user_id,
-            relations: ['home_institution', 'user', 'unlocked_forms']);
+            $user,
+            relations: ['home_institution', 'user']);
 
         $home_institution = $this->homeInstitutionFormRepository->findByApplicationId($application_id);
 
@@ -46,7 +49,7 @@ class HomeInstitutionFormService implements IHomeInstitutionFormService
         return $response;
     }
 
-    public function createOrUpdate($request)
+    public function createOrUpdate(Request $request): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -59,8 +62,8 @@ class HomeInstitutionFormService implements IHomeInstitutionFormService
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $request->application_id,
-            $request->user()->id,
-            relations: ['application_progress', 'unlocked_forms'],
+            $request->user(),
+            relations: ['application_progress'],
             adminAccess: false
         );
 
@@ -94,9 +97,9 @@ class HomeInstitutionFormService implements IHomeInstitutionFormService
                 $response->setErrors(['Error while changing home institution form.']);
                 throw new \Exception("Error while changing home institution form.");
             }
-            if (!$application->application_progress->home_institution) {
+            if ($application->application_progress->home_institution == FormProgress::Incompleted) {
                 $progress = $this->applicationProgressRepository->update($application->application_progress->id, [
-                    "home_institution" => true
+                    "home_institution" => FormProgress::Completed
                 ]);
 
                 if (!$progress) {
@@ -118,14 +121,14 @@ class HomeInstitutionFormService implements IHomeInstitutionFormService
         return $response;
     }
 
-    public function validate($input_data)
+    public function validate(mixed $input_data): Val
     {
         $validator = Validator::make($input_data, [
             'application_id' =>  'required|numeric',
             'faculty' => 'required|string|max:255',
             'department' => 'required|string|max:255',
-            'current_grade' => 'nullable|numeric|min:0',
-            'previous_gpa' => 'nullable|numeric|min:0',
+            'current_grade' => 'nullable|numeric|min:6|max:10',
+            'previous_gpa' => 'nullable|numeric|min:6|max:10',
             'study_program' => 'required|string|max:255',
             'responsible_person' => 'required|string|regex:/^[\pL\s\-]+$/u',
             'email_responsible_person' => 'required|string|email',

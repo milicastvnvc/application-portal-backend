@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Semester extends Model
@@ -22,9 +23,8 @@ class Semester extends Model
         'deleted_at'
     ];
 
-    public function proposed_host_universities()
+    public function proposed_host_universities(): HasMany
     {
         return $this->hasMany(ProposedHostUniversities::class);
     }
-
 }

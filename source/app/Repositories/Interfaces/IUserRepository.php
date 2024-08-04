@@ -2,17 +2,15 @@
 
 namespace App\Repositories\Interfaces;
 
+use App\Models\User;
+
 interface IUserRepository extends IBaseRepository
 {
-    public function register($email, $password);
+    public function register(string $email, string $password): ?User;
 
-    public function addUserExternally($email, $providerId, $providerName);
+    public function getUserByEmail(string $email): ?User;
 
-    public function getUserByEmail($email);
+    public function getUserByVerificationCode(string $code, bool $reset_password = false): ?User;
 
-    public function getUserByProvider($providerId, $providerName);
-
-    public function getUserByVerificationCode($code, $reset_password = false);
-
-    public function updateUser($user);
+    public function updateUser(mixed $user): void;
 }

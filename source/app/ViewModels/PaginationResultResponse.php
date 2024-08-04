@@ -11,7 +11,7 @@ class PaginationResultResponse
     public $last_page;
     public $total;
 
-    public function __construct($pagination)
+    public function __construct(mixed $pagination)
     {
         $this->current_page = $pagination->currentPage();
         $this->data = $pagination->items();

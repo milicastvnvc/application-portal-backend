@@ -5,6 +5,8 @@ namespace App\Services\Implementations;
 use App\ViewModels\ActionResultResponse;
 use App\Repositories\Interfaces\IHomeInstitutionRepository;
 use App\Services\Interfaces\IHomeInstitutionService;
+use Illuminate\Http\Request;
+
 
 class HomeInstitutionService implements IHomeInstitutionService
 {
@@ -15,7 +17,7 @@ class HomeInstitutionService implements IHomeInstitutionService
         $this->homeInstitutionRepository = $homeInstitutionRepository;
     }
 
-    public function getById($request)
+    public function getById(Request $request): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -32,7 +34,7 @@ class HomeInstitutionService implements IHomeInstitutionService
 
     }
 
-    public function getAll()
+    public function getAll(): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -43,7 +45,7 @@ class HomeInstitutionService implements IHomeInstitutionService
         return $response;
     }
 
-    public function create($create_request)
+    public function create(Request $create_request): ActionResultResponse
     {
         $response = new ActionResultResponse();
 

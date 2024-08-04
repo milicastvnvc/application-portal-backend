@@ -2,9 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\ApplicationStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Application extends Model
@@ -16,6 +19,7 @@ class Application extends Model
         'user_id',
         'mobility_id',
         'home_institution_id',
+        'status',
         'submitted_at'
     ];
 
@@ -25,7 +29,8 @@ class Application extends Model
     ];
 
     protected $casts = [
-        'submitted_at' => 'datetime'
+        'submitted_at' => 'datetime',
+        'status' => ApplicationStatus::class
     ];
 
     public function user(): BelongsTo
@@ -43,43 +48,38 @@ class Application extends Model
         return $this->belongsTo(Mobility::class);
     }
 
-    public function other_mobility()
+    public function other_mobility(): HasOne
     {
         return $this->hasOne(OtherMobility::class);
     }
 
-    public function application_progress()
+    public function application_progress(): HasOne
     {
         return $this->hasOne(ApplicationProgress::class);
     }
 
-    public function personal_details()
+    public function personal_details(): HasOne
     {
         return $this->hasOne(PersonalDetails::class);
     }
 
-    public function home_institution_form()
+    public function home_institution_form(): HasOne
     {
         return $this->hasOne(HomeInstitutionForm::class);
     }
 
-    public function proposed_host_universities()
+    public function proposed_host_universities(): HasOne
     {
         return $this->hasOne(ProposedHostUniversities::class);
     }
 
-    public function motivation_and_added_value()
+    public function motivation_and_added_value(): HasOne
     {
         return $this->hasOne(MotivationAndAddedValue::class);
     }
 
-    public function documents_upload()
+    public function documents_upload(): HasMany
     {
-        return $this->hasOne(DocumentsUpload::class);
-    }
-
-    public function unlocked_forms()
-    {
-        return $this->hasMany(UnlockedForm::class);
+        return $this->hasMany(UploadedDocument::class);
     }
 }

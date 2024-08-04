@@ -15,15 +15,15 @@ class RoleRepository extends BaseRepository implements IRoleRepository
         $this->model = $model;
     }
 
-    public function getRoleByName(string $name)
+    public function getRoleByName(string $name): ?Role
     {
         return $this->model
         ->where('name', $name)
         ->first();
     }
 
-    public function addRolesForUser(User $user, array $roles)
+    public function addRolesForUser(User $user, array $roles): void
     {
-        return $user->roles()->attach($roles);
+        $user->roles()->attach($roles);
     }
 }

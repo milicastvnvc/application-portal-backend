@@ -2,7 +2,8 @@
 
 namespace App\Services\Implementations;
 
-use App\Enums\FileType;
+use App\Enums\ApplicationStatus;
+use App\Enums\FormProgress;
 use App\Enums\MobilityType;
 use App\Helpers\ApplicationHelper;
 use App\Repositories\Interfaces\IApplicationProgressRepository;
@@ -13,9 +14,12 @@ use App\Services\Interfaces\IFileService;
 use App\Services\Interfaces\IStorageService;
 use App\Services\Interfaces\IUploadedDocumentsService;
 use App\ViewModels\ActionResultResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Validator as Val;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rules\File;
+use ZipArchive;
 
 class UploadedDocumentsService implements IUploadedDocumentsService
 {
@@ -42,11 +46,11 @@ class UploadedDocumentsService implements IUploadedDocumentsService
         $this->storageService = $storageService;
     }
 
-    public function getByApplicationId($application_id, $user_id)
+    public function getByApplicationId(int $application_id, mixed $user): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
-        $this->applicationRepository->getApplicationByIdAndUser($application_id, $user_id);
+        $this->applicationRepository->getApplicationByIdAndUser($application_id, $user);
 
         $documents = $this->uploadedDocumentsRepository->getDocumentsByApplication($application_id);
 
@@ -60,7 +64,7 @@ class UploadedDocumentsService implements IUploadedDocumentsService
         return $response;
     }
 
-    public function createOrUpdate($request)
+    public function createOrUpdate(Request $request): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -80,8 +84,8 @@ class UploadedDocumentsService implements IUploadedDocumentsService
 
         $application = $this->applicationRepository->getApplicationByIdAndUser(
             $request->application_id,
-            $request->user()->id,
-            relations: ['application_progress', 'unlocked_forms'],
+            $request->user(),
+            relations: ['application_progress'],
             adminAccess: false
         );
 
@@ -91,41 +95,31 @@ class UploadedDocumentsService implements IUploadedDocumentsService
             return $response;
         }
 
-        $id = $request->user()->id;
-        $originalName = $request->file('file')->getClientOriginalName();
-        $document_name = $request->document_name;
-        $directory = $this->storageService->getDirectory($id, $application->id, $document_name);
+        $videoDocument = config('constant.VideoDocument');
+        if ($videoDocument == $request->document_name) {
+            $originalName = "video";
+            $path = $request->link;
+        }
+        else {
+            $id = $request->user()->id;
+            $originalName = $request->file('file')->getClientOriginalName();
+            $document_name = $request->document_name;
+            $extension = $this->fileService->getExtension($originalName);
+            $file_type = $this->fileService->getFileType($extension);
 
-        $extension = $this->fileService->getExtension($originalName);
-        $file_type = $this->fileService->getFileType($extension);
+            $directory = $this->storageService->getDirectory($id, $application->id, $document_name);
 
-        $isSuccessfullyDeleted = $this->storageService->deleteContentsOfDirectory($directory);
+            $isSuccessfullyDeleted = $this->storageService->deleteContentsOfDirectory($directory);
 
-        if ($file_type == FileType::Video) {
-            $originalName = 'video' . '.' . $extension;
-            //$path = $directory . DIRECTORY_SEPARATOR . $originalName;
-            // $totalSize = $request->file('file')->getSize();
-            // $uploadedSize = 0;
+            $isSuccessful = $this->storageService->storeOnLocalDisk($request->file('file'), $file_type, $id, $application->id, $document_name, $originalName);
 
-            // Simulate tracking progress (you may need more accurate tracking)
-            // while ($uploadedSize < $totalSize) {
-            //     usleep(500000); // Sleep for half a second (500 milliseconds)
-            //     $uploadedSize = filesize($path);
-            //     $progress = ($uploadedSize / $totalSize) * 100;
-
-            //     return response()->json(['progress' => $progress]);
-            // }
+            if (!$isSuccessful || !$isSuccessfullyDeleted) {
+                $response->setErrors(['Error while storing document.']);
+                return $response;
+            }
+            $path = $directory . DIRECTORY_SEPARATOR . $originalName;
         }
 
-        $isSuccessful = $this->storageService->storeOnLocalDisk($request->file('file'), $file_type, $id, $application->id, $document_name, $originalName);
-
-        if (!$isSuccessful || !$isSuccessfullyDeleted) {
-            $response->setErrors(['Error while storing document.']);
-            return $response;
-        }
-
-
-        $path = $directory . DIRECTORY_SEPARATOR . $originalName;
         try {
             DB::beginTransaction();
 
@@ -144,7 +138,7 @@ class UploadedDocumentsService implements IUploadedDocumentsService
                 throw new \Exception("Error while changing document.");
             }
 
-            if (!$application->application_progress->documents_upload) {
+            if ($application->application_progress->documents_upload == FormProgress::Incompleted) {
                 $count_my_documents = $this->uploadedDocumentsRepository->countDocumentsByApplication($application->id);
                 if (!$application->mobility) {
                     $mobility_type = MobilityType::Other;
@@ -154,7 +148,7 @@ class UploadedDocumentsService implements IUploadedDocumentsService
 
                 if ($count_my_documents >= $count_required_documents) {
                     $progress = $this->applicationProgressRepository->update($application->application_progress->id, [
-                        "documents_upload" => true
+                        "documents_upload" => FormProgress::Completed
                     ]);
 
                     if (!$progress) {
@@ -177,11 +171,9 @@ class UploadedDocumentsService implements IUploadedDocumentsService
         return $response;
     }
 
-    public function download($request)
+    public function download(Request $request): null|string
     {
-        $user_id = $request->user()->id;
-
-        $application = $this->applicationRepository->getApplicationByIdAndUser($request->application_id, $user_id);
+        $application = $this->applicationRepository->getApplicationByIdAndUser($request->application_id, $request->user());
 
         $file_path = $this->storageService->createStoragePath(
             $application->user_id,
@@ -197,7 +189,52 @@ class UploadedDocumentsService implements IUploadedDocumentsService
         }
     }
 
-    public function validate($input_data, $file_formats)
+    public function downloadAll(Request $request): null|string
+    {
+        $application = $this->applicationRepository->getApplicationByIdAndUser(
+            $request->application_id,
+            $request->user()
+        );
+
+        if ($application->status == ApplicationStatus::Created)
+        {
+            return null;
+        }
+
+        $documents = $this->uploadedDocumentsRepository->getDocumentsByApplication($application->id, ['document_type']);
+        //$output = new \Symfony\Component\Console\Output\ConsoleOutput();
+
+        $zip = new ZipArchive();
+        $zipFileName = 'example.zip';
+
+        $zip_path = $this->storageService->getApplicationStoragePath(
+            $application->user_id,
+            $request->application_id
+        ) . DIRECTORY_SEPARATOR . $zipFileName;
+
+        if ($zip->open($zip_path, ZipArchive::CREATE) === TRUE) {
+
+            foreach ($documents as $document) {
+                $filepath = storage_path() . DIRECTORY_SEPARATOR . "app" . DIRECTORY_SEPARATOR . $document->path;
+                if (file_exists($filepath))
+                {
+                    $filename = $document->document_type->name . ' - ' .  $document->filename;
+                    $zip->addFile($filepath, $filename);
+                }
+
+            }
+
+            $zip->close();
+        }
+
+        if (file_exists($zip_path)) {
+            return $zip_path;
+        } else {
+            return null;
+        }
+    }
+
+    public function validate(mixed $input_data, string $file_formats): Val
     {
 
         $validator = Validator::make($input_data, [
@@ -209,18 +246,19 @@ class UploadedDocumentsService implements IUploadedDocumentsService
 
         if ($validator->fails()) return $validator;
 
-        $delimiter = config('constant.FileFormatsDelimiter');
-        $allFormats = explode($delimiter, $file_formats);
-        $extension = $this->fileService->getExtension($input_data['file']->getClientOriginalName());
-        $file_type = $this->fileService->getFileType($extension);
-        $file_size = $this->fileService->getFileSize($file_type);
-        $originalName = $input_data['file']->getClientOriginalName();
-        if ($file_type == FileType::Video) {
-            $allFormats[] = 'asf';
+        $videoDocument = config('constant.VideoDocument');
+        if ($videoDocument == $input_data['document_name']) {
+            $validator = Validator::make($input_data, [
+                'link' => 'required|url'
+            ]);
+            return $validator;
         }
 
-        $output = new \Symfony\Component\Console\Output\ConsoleOutput();
-        $output->writeln($allFormats);
+        $extension = $this->fileService->getExtension($input_data['file']->getClientOriginalName());
+        $file_type = $this->fileService->getFileType($extension);
+        $delimiter = config('constant.FileFormatsDelimiter');
+        $allFormats = explode($delimiter, $file_formats);
+        $file_size = $this->fileService->getFileSize($file_type);
 
         $validator = Validator::make($input_data, [
             'file' => [

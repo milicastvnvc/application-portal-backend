@@ -7,8 +7,7 @@ use App\Services\Interfaces\IFileService;
 
 class FileService implements IFileService
 {
-
-    public function getExtension(string $filename)
+    public function getExtension(string $filename): string
     {
         $delimiter = '.';
         $nameArray =  explode($delimiter, $filename);
@@ -17,7 +16,7 @@ class FileService implements IFileService
         return $extension;
     }
 
-    public function getFileType(string $extension)
+    public function getFileType(string $extension): FileType
     {
         $videoFormats = config('constant.VideoFormats');
         $imageFormats = config('constant.ImageFormats');
@@ -38,7 +37,7 @@ class FileService implements IFileService
         return FileType::Other;
     }
 
-    public function getFileSize(FileType $type)
+    public function getFileSize(FileType $type): int
     {
         $fileSize = config('constant.FileSize');
         $videoSize = config('constant.VideoSize');

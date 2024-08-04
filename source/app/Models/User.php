@@ -25,9 +25,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     protected $fillable = [
         'email',
         'password'
-        // 'provider_id',
-        // 'provider_name',
-        // 'google_access_token_json'
     ];
 
     /**
@@ -37,7 +34,6 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
      */
     protected $hidden = [
         'password',
-        'remember_token',
         'verification_code',
         'verification_expiry_time',
         'reset_password_code',
@@ -67,12 +63,18 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     {
         return $this->hasMany(Application::class);
     }
+
+    public function logging_data(): HasMany
+    {
+        return $this->hasMany(LoggingData::class);
+    }
+
     public function getJWTIdentifier()
     {
         return $this->getKey();
     }
 
-    public function hasRole($role)
+    public function hasRole(mixed $role): bool
     {
         if ($this->roles()->where('name', $role)->first()) {
             return true;

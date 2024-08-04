@@ -7,9 +7,9 @@ use App\ViewModels\ActionResultResponse;
 use App\Mail\UserEmail;
 use App\Repositories\Interfaces\IRoleRepository;
 use App\Repositories\Interfaces\IUserRepository;
-use App\Services\Interfaces\IGoogleService;
 use App\Services\Interfaces\IUserService;
 use App\ViewModels\UserViewModel;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -19,17 +19,15 @@ class UserService implements IUserService
 {
 
     private $userRepository;
-    private $googleService;
     private $roleRepository;
 
-    public function __construct(IUserRepository $userRepository, IGoogleService $googleService, IRoleRepository $roleRepository)
+    public function __construct(IUserRepository $userRepository, IRoleRepository $roleRepository)
     {
         $this->userRepository = $userRepository;
-        $this->googleService = $googleService;
         $this->roleRepository = $roleRepository;
     }
 
-    public function register($registerRequest)
+    public function register(Request $registerRequest): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -66,7 +64,7 @@ class UserService implements IUserService
         return $response;
     }
 
-    public function login($loginRequest)
+    public function login(Request $loginRequest): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -91,8 +89,7 @@ class UserService implements IUserService
         $user = Auth::user();
 
         if (!$user->email_verified_at) {
-            $data['user'] = new UserViewModel($user);
-            $response->setErrors(['You have to verify email address to login to your account'], $data);
+            $response->setErrors(['You have to verify email address to login to your account']);
             return $response;
         }
 
@@ -104,68 +101,14 @@ class UserService implements IUserService
         return $response;
     }
 
-    public function googleLogin($loginRequest)
-    {
-        $response = new ActionResultResponse();
-        /**
-         * Google client
-         */
-        $client = $this->googleService->getClient();
-        $result = $client->verifyIdToken($loginRequest->credentials);
-
-        if (!$result) {
-            $response->setErrors(['Invalid external token']);
-            return $response;
-        }
-        $tokenUserID = $result['sub'];
-        $tokenAudience = $result['aud'];
-        $tokenEmail = $result['email'];
-
-        $user = $this->userRepository->getUserByProvider($tokenUserID, 'google');
-
-        if (!$user) {
-
-            $user = $this->userRepository->addUserExternally($tokenEmail, $tokenUserID, 'google');
-
-            if (!$user) {
-                $response->setErrors(['Error while external login']);
-                return $response;
-            }
-        }
-
-        if (!$user->email_verified_at) {
-            $verificationResponse = $this->sendVerifyCode($user->email);
-
-            if (!$verificationResponse->success) {
-                return $verificationResponse;
-            }
-        }
-
-        $credentials['email'] = $user->email;
-        $credentials['password'] = $user->password;
-        $token = Auth::attempt($credentials);
-
-        if (!$token) {
-            $response->setErrors(['Error while generating token']);
-            return $response;
-        }
-
-        $success['user'] =  new UserViewModel($user);
-        $success['token'] =  $token;
-
-        $response->setSuccess($success);
-
-        return $response;
-    }
-
-    public function verify($verifyRequest)
+    public function verify(Request $verifyRequest): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
         $user = $this->userRepository->getUserByVerificationCode($verifyRequest->code);
 
         if (!$user) {
-            $response->setErrors(['Invalid verification code']);
+            $response->setErrors(['Invalid verification link']);
             return $response;
         }
 
@@ -186,7 +129,7 @@ class UserService implements IUserService
         return $response;
     }
 
-    public function sendVerifyCode($email, $reset_password = false)
+    public function sendVerifyCode(string $email, bool $reset_password = false): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
@@ -238,7 +181,7 @@ class UserService implements IUserService
         return $response;
     }
 
-    public function resetPassword($resetPasswordRequest)
+    public function resetPassword(Request $resetPasswordRequest): ActionResultResponse
     {
         $response = new ActionResultResponse();
 

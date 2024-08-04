@@ -2,18 +2,18 @@
 
 namespace App\Services\Interfaces;
 
+use App\ViewModels\ActionResultResponse;
+use Illuminate\Http\Request;
+
 interface IUserService
 {
+    public function register(Request $registerRequest): ActionResultResponse;
 
-    public function register($registerRequest);
+    public function login(Request $loginRequest): ActionResultResponse;
 
-    public function login($loginRequest);
+    public function verify(Request $verifyRequest): ActionResultResponse;
 
-    public function googleLogin($loginRequest);
+    public function sendVerifyCode(string $email, bool $reset_password = false): ActionResultResponse;
 
-    public function verify($verifyRequest);
-
-    public function sendVerifyCode($email, $reset_password = false);
-
-    public function resetPassword($resetPasswordRequest);
+    public function resetPassword(Request $resetPasswordRequest): ActionResultResponse;
 }

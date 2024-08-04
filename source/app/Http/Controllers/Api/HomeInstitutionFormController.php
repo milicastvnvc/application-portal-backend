@@ -18,7 +18,7 @@ class HomeInstitutionFormController extends Controller
 
     public function getByApplicationId(Request $request)
     {
-        $response = $this->homeInstitutionFormService->getByApplicationId($request->application_id, $request->user()->id);
+        $response = $this->homeInstitutionFormService->getByApplicationId($request->application_id, $request->user());
 
         return response()->ok($response);
     }

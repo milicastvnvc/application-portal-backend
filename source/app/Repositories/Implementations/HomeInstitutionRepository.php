@@ -4,6 +4,7 @@ namespace App\Repositories\Implementations;
 
 use App\Models\HomeInstitution;
 use App\Repositories\Interfaces\IHomeInstitutionRepository;
+use Illuminate\Database\Eloquent\Collection;
 
 class HomeInstitutionRepository extends BaseRepository implements IHomeInstitutionRepository
 {
@@ -14,7 +15,7 @@ class HomeInstitutionRepository extends BaseRepository implements IHomeInstituti
         $this->model = $model;
     }
 
-    public function getAllHomeInstitutions()
+    public function getAllHomeInstitutions(): Collection
     {
         return $this->model->get();
     }

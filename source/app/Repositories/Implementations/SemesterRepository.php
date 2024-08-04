@@ -4,6 +4,7 @@ namespace App\Repositories\Implementations;
 
 use App\Models\Semester;
 use App\Repositories\Interfaces\ISemesterRepository;
+use Illuminate\Database\Eloquent\Collection;
 
 class SemesterRepository extends BaseRepository implements ISemesterRepository
 {
@@ -14,7 +15,7 @@ class SemesterRepository extends BaseRepository implements ISemesterRepository
         $this->model = $model;
     }
 
-    public function getActiveSemesters()
+    public function getActiveSemesters(): Collection
     {
         return $this->model->where('is_active', true)->get();
     }

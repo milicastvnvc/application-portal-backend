@@ -2,19 +2,29 @@
 
 namespace App\Services\Interfaces;
 
-use App\Models\Application;
+use App\ViewModels\ActionResultResponse;
+use Illuminate\Http\Request;
+use Illuminate\Validation\Validator;
 
 interface IApplicationService
 {
-    public function getById($request);
+    public function getById(Request $request): ActionResultResponse;
 
-    public function getAllApplications($page = 1, $search_key = '', $mobility_id = null, $home_institution_id = null, $per_page = 10, $is_submitted = true);
+    public function getAllApplications(
+        int $page = 1,
+        string $search_key = '',
+        $mobility_id = null,
+        $home_institution_id = null,
+        int $per_page = 10,
+        $status = null): ActionResultResponse;
 
-    public function getMyApplications($user_id);
+    public function getMyApplications(int $user_id): ActionResultResponse;
 
-    public function create($create_request);
+    public function create(Request $create_request): ActionResultResponse;
 
-    public function submitApplication($request);
+    public function submitApplication(Request $request): ActionResultResponse;
 
-    public function validate($input_data);
+    public function changeApplicationStatus(Request $request): ActionResultResponse;
+
+    public function validate(mixed $input_data, bool $create = true): Validator;
 }

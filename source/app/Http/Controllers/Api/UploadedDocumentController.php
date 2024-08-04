@@ -13,12 +13,13 @@ class UploadedDocumentController extends Controller
     public function __construct(IUploadedDocumentsService $uploadedDocumentService)
     {
         $this->middleware('auth:api');
+        $this->middleware('role:admin', ['only' => ['downloadAll']]);
         $this->uploadedDocumentService = $uploadedDocumentService;
     }
 
     public function getByApplicationId(Request $request)
     {
-        $response = $this->uploadedDocumentService->getByApplicationId($request->application_id, $request->user()->id);
+        $response = $this->uploadedDocumentService->getByApplicationId($request->application_id, $request->user());
 
         return response()->ok($response);
     }
@@ -34,8 +35,17 @@ class UploadedDocumentController extends Controller
     {
         $file_path = $this->uploadedDocumentService->download($request);
 
-        if (!$file_path) response()->notFound();
+        if (!$file_path) return response()->notFound();
 
         return response()->download($file_path);
+    }
+
+    public function downloadAll(Request $request)
+    {
+        $file_path = $this->uploadedDocumentService->downloadAll($request);
+
+        if (!$file_path) return response()->notFound();
+
+        return response()->download($file_path)->deleteFileAfterSend(true);
     }
 }

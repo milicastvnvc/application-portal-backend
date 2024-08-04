@@ -10,14 +10,14 @@ class ActionResultResponse
     public $data;
     public $errors;
 
-    function setSuccess($data)
+    function setSuccess(mixed $data)
     {
         $this->success = true;
         $this->data = $data;
         $this->errors = [];
     }
 
-    function setErrors($errors, $data = NULL)
+    function setErrors(array $errors, $data = NULL)
     {
         $this->success = false;
         $this->data = $data;

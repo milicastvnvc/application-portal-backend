@@ -7,8 +7,7 @@ use Intervention\Image\Facades\Image;
 
 class ImageCompressionService implements IImageCompressionService
 {
-
-    public function compressImage($file, $file_path)
+    public function compressImage(mixed $file, string $file_path): bool
     {
         $isSuccessful = false;
 
@@ -35,5 +34,4 @@ class ImageCompressionService implements IImageCompressionService
 
         return $isSuccessful;
     }
-
 }
