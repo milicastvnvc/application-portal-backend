@@ -25,7 +25,7 @@ return [
     'DocumentFormats' => 'pdf',
     'VideoFormats' => 'mp4|mov|wmv|asf|avi|flv|mkv',
     'VideoDocument' => 'video',
-    'FileSize' => 10,
+    'FileSize' => 30,
     'VideoSize' => 200,
     'ResizeRate' => 3,
     'ImageCompressionQuality' => 40,
