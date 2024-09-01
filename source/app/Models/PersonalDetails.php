@@ -31,7 +31,9 @@ class PersonalDetails extends Model
         'alternative_email',
         'disadvantaged',
         'previous_host_institution',
-        'mobility_dates'
+        'mobility_dates',
+        'previous_participation',
+        'participation_count'
     ];
 
     protected $hidden = [

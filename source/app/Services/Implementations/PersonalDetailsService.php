@@ -100,7 +100,9 @@ class PersonalDetailsService implements IPersonalDetailsService
                     'alternative_email' => $request->alternative_email,
                     'disadvantaged' => $request->disadvantaged,
                     'previous_host_institution' => $request->previous_host_institution,
-                    'mobility_dates' => $request->mobility_dates
+                    'mobility_dates' => $request->mobility_dates,
+                    'previous_participation' => $request->previous_participation,
+                    'participation_count' => $request->participation_count
                 ]
             );
 
@@ -151,6 +153,8 @@ class PersonalDetailsService implements IPersonalDetailsService
             'disadvantaged' => ['nullable', new Enum(BinaryQuestion::class)],
             'previous_host_institution' => 'nullable|string|max:255',
             'mobility_dates' => 'nullable|string',
+            'previous_participation' => 'required|boolean',
+            'participation_count' => 'nullable|integer|min:1|max:10',
         ]);
 
         return $validator;
