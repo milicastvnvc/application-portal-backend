@@ -29,7 +29,9 @@ class PersonalDetails extends Model
         'telephone',
         'email',
         'alternative_email',
-        'disadvantaged'
+        'disadvantaged',
+        'previous_host_institution',
+        'mobility_dates'
     ];
 
     protected $hidden = [

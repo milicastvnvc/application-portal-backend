@@ -98,7 +98,9 @@ class PersonalDetailsService implements IPersonalDetailsService
                     'telephone' => $request->telephone,
                     'email' => $request->email,
                     'alternative_email' => $request->alternative_email,
-                    'disadvantaged' => $request->disadvantaged
+                    'disadvantaged' => $request->disadvantaged,
+                    'previous_host_institution' => $request->previous_host_institution,
+                    'mobility_dates' => $request->mobility_dates
                 ]
             );
 
@@ -146,7 +148,9 @@ class PersonalDetailsService implements IPersonalDetailsService
             'telephone' => 'required|string|max:255',
             'email' => 'required|string|email|max:255',
             'alternative_email' => 'nullable|string|email|max:255',
-            'disadvantaged' => ['nullable', new Enum(BinaryQuestion::class)]
+            'disadvantaged' => ['nullable', new Enum(BinaryQuestion::class)],
+            'previous_host_institution' => 'nullable|string|max:255',
+            'mobility_dates' => 'nullable|string',
         ]);
 
         return $validator;
