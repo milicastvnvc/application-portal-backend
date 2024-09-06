@@ -361,4 +361,42 @@ class ApplicationService implements IApplicationService
 
         return $validator;
     }
+
+
+    public function deleteApplication($applicationId)
+    {
+        // \Log::info('Deleting application with ID: ' . $applicationId);
+
+        DB::beginTransaction();
+
+        try {
+            $application = $this->applicationRepository->findById($applicationId);
+            if (!$application) {
+                // \Log::error('Application not found with ID: ' . $applicationId);
+                return [
+                    'success' => false,
+                    'message' => 'Application not found'
+                ];
+            }
+
+            $application->delete();
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Application deleted successfully'
+            ];
+        } catch (\Exception $e) {
+            DB::rollBack();
+            // \Log::error('Error while deleting application: ' . $e->getMessage());
+
+            return [
+                'success' => false,
+                'message' => 'Error while deleting application'
+            ];
+        }
+    }
+
+
+
 }

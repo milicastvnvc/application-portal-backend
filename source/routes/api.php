@@ -41,6 +41,7 @@ Route::prefix('application')->group(function () {
     Route::get('/{id}', [ApplicationController::class, 'getById']);
     Route::post('/submit', [ApplicationController::class, 'submitApplication']);
     Route::post('/status', [ApplicationController::class, 'changeApplicationStatus']);
+    Route::delete('/{id}', [ApplicationController::class, 'deleteApplication']);
 });
 
 Route::prefix('application-progress')->group(function () {

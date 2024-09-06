@@ -84,4 +84,15 @@ class ApplicationRepository extends BaseRepository implements IApplicationReposi
             ->with($relations)
             ->firstOrFail();
     }
+
+    public function deleteApplication($applicationId)
+    {
+        $application = Application::find($applicationId);
+
+        if (!$application) {
+            return false;
+        }
+
+        return $application->delete();
+    }
 }

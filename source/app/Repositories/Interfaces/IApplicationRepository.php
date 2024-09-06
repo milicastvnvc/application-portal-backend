@@ -22,4 +22,6 @@ interface IApplicationRepository extends IBaseRepository
         mixed $user,
         array $relations = [],
         bool $adminAccess = true): Application;
+
+    public function deleteApplication($applicationId);
 }

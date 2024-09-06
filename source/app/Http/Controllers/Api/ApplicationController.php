@@ -65,4 +65,13 @@ class ApplicationController extends Controller
 
         return response()->ok($response);
     }
+
+    public function deleteApplication($id)
+    {
+        // \Log::info('DELETING application with ID: ' . $id);
+        $response = $this->applicationService->deleteApplication($id);
+
+        return response()->ok($response);
+    }
+
 }

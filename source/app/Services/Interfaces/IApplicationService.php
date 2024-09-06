@@ -27,4 +27,7 @@ interface IApplicationService
     public function changeApplicationStatus(Request $request): ActionResultResponse;
 
     public function validate(mixed $input_data, bool $create = true): Validator;
+
+    public function deleteApplication($applicationId);
+
 }
