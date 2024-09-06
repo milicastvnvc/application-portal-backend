@@ -17,7 +17,7 @@ class ApplicationRepository extends BaseRepository implements IApplicationReposi
         $this->model = $model;
     }
 
-    public function getAllApplications($page = 1, $search_key = '', $mobility_id = null, $home_institution_id = null, $per_page = 10, $status = null): mixed
+    public function getAllApplications($page = 1, $search_key = '', $mobility_id = null, $home_institution_id = null, $per_page = 10, $status = null, $contest_id = null): mixed
     {
         $query = $this->model;
 
@@ -44,6 +44,10 @@ class ApplicationRepository extends BaseRepository implements IApplicationReposi
         }
         else {
             $query = $query->where('status', '!=', ApplicationStatus::Created);
+        }
+
+        if ($contest_id) {
+            $query = $query->where('contest_id', '=', $contest_id);
         }
 
         return $query

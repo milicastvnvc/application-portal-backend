@@ -13,7 +13,8 @@ interface IApplicationRepository extends IBaseRepository
         mixed $mobility_id = null,
         mixed $home_institution_id = null,
         int $per_page = 10,
-        mixed $status = null): mixed;
+        mixed $status = null,
+        mixed $contest_id = null): mixed;
 
     public function getApplicationsByUser(int $user_id): Collection;
 

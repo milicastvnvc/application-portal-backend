@@ -33,7 +33,13 @@ class ApplicationController extends Controller
         $mobility_id = $request->input('mobility_id', null);
         $home_institution_id = $request->input('home_institution_id', null);
 
-        $response = $this->applicationService->getAllApplications($page, $search_key, $mobility_id, $home_institution_id, $per_page, $status);
+        // $response = $this->applicationService->getAllApplications($page, $search_key, $mobility_id, $home_institution_id, $per_page, $status);
+
+        // return response()->ok($response);
+
+        $contest_id = $request->input('contest_id', null);
+
+        $response = $this->applicationService->getAllApplications($page, $search_key, $mobility_id, $home_institution_id, $per_page, $status, $contest_id);
 
         return response()->ok($response);
     }

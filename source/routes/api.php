@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\PersonalDetailsController;
 use App\Http\Controllers\Api\MotivationAndAddedValueController;
 use App\Http\Controllers\Api\ProposedHostUniversitiesController;
 use App\Http\Controllers\Api\UploadedDocumentController;
+use App\Http\Controllers\Api\ContestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,7 +90,12 @@ Route::prefix('documents-upload')->group(function () {
     Route::get('downloadAll/{application_id}',  [UploadedDocumentController::class, 'downloadAll']);
 });
 
+Route::prefix('contests')->group(function () {
+    Route::get('/', [ContestController::class, 'getAll']);
+});
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+

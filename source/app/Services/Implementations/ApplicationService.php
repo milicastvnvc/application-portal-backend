@@ -61,11 +61,11 @@ class ApplicationService implements IApplicationService
         return $response;
     }
 
-    public function getAllApplications($page = 1, $search_key = '', $mobility_id = null, $home_institution_id = null, $per_page = 10, $status = null): ActionResultResponse
+    public function getAllApplications($page = 1, $search_key = '', $mobility_id = null, $home_institution_id = null, $per_page = 10, $status = null, $contest_id = null): ActionResultResponse
     {
         $response = new ActionResultResponse();
 
-        $pagination = $this->applicationRepository->getAllApplications($page, $search_key, $mobility_id, $home_institution_id, $per_page, $status);
+        $pagination = $this->applicationRepository->getAllApplications($page, $search_key, $mobility_id, $home_institution_id, $per_page, $status, $contest_id);
 
         $data = new PaginationResultResponse($pagination);
 
