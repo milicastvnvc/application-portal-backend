@@ -13,7 +13,21 @@ class ApplicationController extends Controller
     public function __construct(IApplicationService $applicationService)
     {
         $this->middleware('auth:api');
-        $this->middleware('role:admin', ['only' => ['getAllApplications', 'changeApplicationStatus']]);
+        // $this->middleware('role:admin', ['only' => ['getAllApplications', 'changeApplicationStatus']]);
+        // $this->middleware('role:admin,coordinator', ['only' => ['getAllApplications']]);
+        // $this->middleware('role:admin', ['only' => ['getAllApplications']]);
+        // $this->middleware('role:coordinator', ['only' => ['getAllApplications']]);
+
+        // $this->middleware('role:admin', ['only' => ['changeApplicationStatus']]);
+
+        // $this->middleware(function ($request, $next) {
+        //     if ($request->user()->hasAnyRole(['admin', 'coordinator'])) {
+        //         return $next($request);
+        //     }
+        //     return response()->json(['message' => 'Forbidden'], 403);
+        // })->only(['getAllApplications']);
+        
+        
         $this->applicationService = $applicationService;
     }
 
