@@ -13,7 +13,9 @@ class UploadedDocumentController extends Controller
     public function __construct(IUploadedDocumentsService $uploadedDocumentService)
     {
         $this->middleware('auth:api');
-        $this->middleware('role:admin', ['only' => ['downloadAll']]);
+        // $this->middleware('role:admin', ['only' => ['downloadAll']]);
+        // $this->middleware('role:admin,coordinator', ['only' => ['downloadAll']]);
+
         $this->uploadedDocumentService = $uploadedDocumentService;
     }
 

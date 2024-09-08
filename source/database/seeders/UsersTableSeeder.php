@@ -21,6 +21,13 @@ class UsersTableSeeder extends Seeder
                 'email_verified_at' => Carbon::now(),
                 'created_at' => Carbon::now(),
                 'updated_at' => null
+            ],
+            [
+                'email' => 'coordinator@gmail.com',
+                'password' => Hash::make('123456'),
+                'email_verified_at' => Carbon::now(),
+                'created_at' => Carbon::now(),
+                'updated_at' => null
             ]
         ];
 

@@ -75,7 +75,7 @@ class ApplicationRepository extends BaseRepository implements IApplicationReposi
 
     public function getApplicationByIdAndUser($id, $user, array $relations = [], $adminAccess = true): Application
     {
-        if ($adminAccess && $user->hasRole(Roles::Admin)) {
+        if (($adminAccess && $user->hasRole(Roles::Admin))||$user->hasRole(Roles::Coordinator)) {
             return $this->model
                 ->where('id', $id)
                 ->with($relations)

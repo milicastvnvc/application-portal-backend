@@ -51,7 +51,7 @@ class ApplicationService implements IApplicationService
             return $response;
         }
 
-        if ($application->user_id != $request->user()->id && !$request->user()->hasRole(Roles::Admin)) {
+        if ($application->user_id != $request->user()->id && !$request->user()->hasRole(Roles::Admin) && !$request->user()->hasRole(Roles::Coordinator)) {
             $response->setErrors(['Application with this id does not exist']);
             return $response;
         }

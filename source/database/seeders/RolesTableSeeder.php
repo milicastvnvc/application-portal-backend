@@ -23,7 +23,12 @@ class RolesTableSeeder extends Seeder
                 'name' => 'applicant',
                 'created_at' => Carbon::now(),
                 'updated_at' => null
-            ]
+            ],
+            [
+                'name' => 'coordinator', 
+                'created_at' => Carbon::now(), 
+                'updated_at' => null
+            ],
         ];
 
         DB::table('roles')->insert($roles);
