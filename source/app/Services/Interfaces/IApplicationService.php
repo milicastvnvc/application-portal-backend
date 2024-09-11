@@ -17,7 +17,7 @@ interface IApplicationService
         $home_institution_id = null,
         int $per_page = 10,
         $status = null,
-        $contest_id = null): ActionResultResponse;
+        $call_id = null): ActionResultResponse;
 
     public function getMyApplications(int $user_id): ActionResultResponse;
 

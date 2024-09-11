@@ -83,8 +83,13 @@ class Application extends Model
         return $this->hasMany(UploadedDocument::class);
     }
 
-    public function contest(): BelongsTo
+    // public function contest(): BelongsTo
+    // {
+    //     return $this->belongsTo(Contest::class, 'contest_id');
+    // }
+
+    public function call(): BelongsTo
     {
-        return $this->belongsTo(Contest::class, 'contest_id');
+        return $this->belongsTo(Call::class, 'call_id');
     }
 }

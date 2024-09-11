@@ -51,9 +51,9 @@ class ApplicationController extends Controller
 
         // return response()->ok($response);
 
-        $contest_id = $request->input('contest_id', null);
+        $call_id = $request->input('call_id', null);
 
-        $response = $this->applicationService->getAllApplications($page, $search_key, $mobility_id, $home_institution_id, $per_page, $status, $contest_id);
+        $response = $this->applicationService->getAllApplications($page, $search_key, $mobility_id, $home_institution_id, $per_page, $status, $call_id);
 
         return response()->ok($response);
     }

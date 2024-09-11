@@ -23,7 +23,7 @@ class DatabaseSeeder extends Seeder
             DocumentTypeLinksTableSeeder::class,
             MobilitiesDocumentTypesTableSeeder::class,
             SemesterTableSeeder::class,
-            ContestSeeder::class
+            CallsSeeder::class 
         ]);
     }
 }
