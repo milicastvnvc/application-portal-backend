@@ -14,7 +14,6 @@ use App\Http\Controllers\Api\PersonalDetailsController;
 use App\Http\Controllers\Api\MotivationAndAddedValueController;
 use App\Http\Controllers\Api\ProposedHostUniversitiesController;
 use App\Http\Controllers\Api\UploadedDocumentController;
-use App\Http\Controllers\Api\ContestController;
 use App\Http\Controllers\Api\CallController;
 
 /*
