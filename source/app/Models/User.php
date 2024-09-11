@@ -24,7 +24,8 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
      */
     protected $fillable = [
         'email',
-        'password'
+        'password',
+        'home_institution_id'
     ];
 
     /**
@@ -85,5 +86,10 @@ class User extends Authenticatable implements JWTSubject, MustVerifyEmail
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    public function homeInstitution()
+    {
+        return $this->belongsTo(HomeInstitution::class);
     }
 }

@@ -39,4 +39,11 @@ class UserRepository extends BaseRepository implements IUserRepository
 
         return $this->model::where('verification_code', $code)->first();
     }
+
+    public function getHomeInstitutionIdByUserId($userId): ?int
+    {
+        $user = $this->model->find($userId);
+        return $user ? $user->home_institution_id : null;
+    }
+
 }

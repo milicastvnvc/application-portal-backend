@@ -214,4 +214,10 @@ class UserService implements IUserService
 
         return $response;
     }
+
+    public function getHomeInstitutionId(int $userId): ?int
+    {
+        return $this->userRepository->getHomeInstitutionIdByUserId($userId);
+    }
+
 }

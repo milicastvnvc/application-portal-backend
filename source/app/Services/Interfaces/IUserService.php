@@ -16,4 +16,6 @@ interface IUserService
     public function sendVerifyCode(string $email, bool $reset_password = false): ActionResultResponse;
 
     public function resetPassword(Request $resetPasswordRequest): ActionResultResponse;
+
+    public function getHomeInstitutionId(int $userId): ?int;
 }

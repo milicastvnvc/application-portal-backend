@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Services\Interfaces\IHomeInstitutionService;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class HomeInstitutionController extends Controller
 {
@@ -35,5 +36,18 @@ class HomeInstitutionController extends Controller
         $response = $this->homeInsitutionService->create($request);
 
         return response()->ok($response);
+    }
+
+    public function getHomeInstitutionIdByUserId($id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['success' => false, 'errors' => ['User not found']], 404);
+        }
+
+        $homeInstitutionId = $user->home_institution_id;
+
+        return response()->json(['success' => true, 'data' => $homeInstitutionId]);
     }
 }

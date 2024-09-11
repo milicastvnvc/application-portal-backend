@@ -94,6 +94,10 @@ Route::prefix('contests')->group(function () {
     Route::get('/', [ContestController::class, 'getAll']);
 });
 
+// Route::middleware('auth:sanctum')->get('/user/{id}/home-institution-id', [HomeInstitutionController::class, 'getHomeInstitutionIdByUserId']);
+
+Route::middleware('auth:api')->get('/user/{id}/home-institution-id', [HomeInstitutionController::class, 'getHomeInstitutionIdByUserId']);
+
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
