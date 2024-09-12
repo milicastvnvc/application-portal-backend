@@ -99,10 +99,18 @@ class PersonalDetailsService implements IPersonalDetailsService
                     'email' => $request->email,
                     'alternative_email' => $request->alternative_email,
                     'disadvantaged' => $request->disadvantaged,
-                    'previous_host_institution' => $request->previous_host_institution,
-                    'mobility_dates' => $request->mobility_dates,
                     'previous_participation' => $request->previous_participation,
-                    'participation_count' => $request->participation_count
+                    'participation_count' => $request->participation_count,
+                    'name_of_host_institution_1' => $request->name_of_host_institution_1,
+                    'mobility_date_1' => $request->mobility_date_1,
+                    'name_of_host_institution_2' => $request->name_of_host_institution_2,
+                    'mobility_date_2' => $request->mobility_date_2,
+                    'name_of_host_institution_3' => $request->name_of_host_institution_3,
+                    'mobility_date_3' => $request->mobility_date_3,
+                    'name_of_host_institution_4' => $request->name_of_host_institution_4,
+                    'mobility_date_4' => $request->mobility_date_4,
+                    'name_of_host_institution_5' => $request->name_of_host_institution_5,
+                    'mobility_date_5' => $request->mobility_date_5,
                 ]
             );
 
@@ -151,10 +159,18 @@ class PersonalDetailsService implements IPersonalDetailsService
             'email' => 'required|string|email|max:255',
             'alternative_email' => 'nullable|string|email|max:255',
             'disadvantaged' => ['nullable', new Enum(BinaryQuestion::class)],
-            'previous_host_institution' => 'nullable|string|max:255',
-            'mobility_dates' => 'nullable|string',
             'previous_participation' => 'required|boolean',
             'participation_count' => 'nullable|integer|min:1|max:10',
+            'name_of_host_institution_1' => 'nullable|string|max:255',
+            'mobility_date_1' => 'nullable|date',
+            'name_of_host_institution_2' => 'nullable|string|max:255',
+            'mobility_date_2' => 'nullable|date',
+            'name_of_host_institution_3' => 'nullable|string|max:255',
+            'mobility_date_3' => 'nullable|date',
+            'name_of_host_institution_4' => 'nullable|string|max:255',
+            'mobility_date_4' => 'nullable|date',
+            'name_of_host_institution_5' => 'nullable|string|max:255',
+            'mobility_date_5' => 'nullable|date',
         ]);
 
         return $validator;
