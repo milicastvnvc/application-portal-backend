@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\MotivationAndAddedValueController;
 use App\Http\Controllers\Api\ProposedHostUniversitiesController;
 use App\Http\Controllers\Api\UploadedDocumentController;
 use App\Http\Controllers\Api\CallController;
+use App\Http\Controllers\Api\ApplicationEvaluationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,6 +95,9 @@ Route::prefix('calls')->group(function () {
     Route::get('/', [CallController::class, 'getAll']);
 });
 
+Route::post('application-evaluation', [ApplicationEvaluationController::class, 'store']);
+Route::put('application-evaluation/{application}', [ApplicationEvaluationController::class, 'update']);
+Route::get('application-evaluation/{application}', [ApplicationEvaluationController::class, 'show']);
 // Route::middleware('auth:sanctum')->get('/user/{id}/home-institution-id', [HomeInstitutionController::class, 'getHomeInstitutionIdByUserId']);
 
 Route::middleware('auth:api')->get('/user/{id}/home-institution-id', [HomeInstitutionController::class, 'getHomeInstitutionIdByUserId']);

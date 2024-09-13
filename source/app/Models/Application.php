@@ -20,6 +20,7 @@ class Application extends Model
         'mobility_id',
         'home_institution_id',
         'status',
+        'score',
         'submitted_at'
     ];
 
@@ -83,10 +84,6 @@ class Application extends Model
         return $this->hasMany(UploadedDocument::class);
     }
 
-    // public function contest(): BelongsTo
-    // {
-    //     return $this->belongsTo(Contest::class, 'contest_id');
-    // }
 
     public function call(): BelongsTo
     {
