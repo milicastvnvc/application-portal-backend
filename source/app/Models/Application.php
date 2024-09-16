@@ -21,7 +21,8 @@ class Application extends Model
         'home_institution_id',
         'status',
         'score',
-        'submitted_at'
+        'submitted_at',
+        'call_id'
     ];
 
     protected $hidden = [

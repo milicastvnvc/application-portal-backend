@@ -20,21 +20,25 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\UserEmail;
 use Illuminate\Validation\Rules\Enum;
 use Illuminate\Http\Request;
+use App\Repositories\Interfaces\ICallRepository; 
 
 class ApplicationService implements IApplicationService
 {
     private $applicationRepository;
     private $applicationProgressRepository;
     private $otherMobilityRepository;
+    private $callRepository;
 
     public function __construct(
         IApplicationRepository $applicationRepository,
         IApplicationProgressRepository $applicationProgressRepository,
-        IOtherMobilityRepository $otherMobilityRepository
+        IOtherMobilityRepository $otherMobilityRepository,
+        ICallRepository $callRepository
     ) {
         $this->applicationRepository = $applicationRepository;
         $this->applicationProgressRepository = $applicationProgressRepository;
         $this->otherMobilityRepository = $otherMobilityRepository;
+        $this->callRepository = $callRepository;
     }
 
     public function getById(Request $request): ActionResultResponse
@@ -107,11 +111,18 @@ class ApplicationService implements IApplicationService
 
             $user_id = $create_request->user()->id;
 
+            $latestCall = $this->callRepository->getLatestCall();
+
+            if (!$latestCall) {
+                throw new \Exception("No valid call found.");
+            }
+
             $application = $this->applicationRepository->create([
                 "user_id" => $user_id,
                 "mobility_id" => $create_request->mobility_id,
                 "home_institution_id" => $create_request->home_institution_id,
-                "status" => ApplicationStatus::Created
+                "status" => ApplicationStatus::Created,
+                "call_id" => $latestCall->id
             ]);
 
             if ($application === null) {

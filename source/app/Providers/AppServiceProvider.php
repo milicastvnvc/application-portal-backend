@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\Interfaces\ICallRepository;
+use App\Repositories\Implementations\CallRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->register(
             provider: ServiceLayerServiceProvider::class,
         );
+
+        $this->app->bind(ICallRepository::class, CallRepository::class);
 
     }
 
